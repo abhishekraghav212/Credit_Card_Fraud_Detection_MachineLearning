@@ -1,0 +1,137 @@
+#Importing various Libraries
+import pandas as pd
+import numpy as np # working with arrays
+import matplotlib.pyplot as plt # visualization
+import seaborn as sns
+ 
+from sklearn.preprocessing import StandardScaler # data normalization
+from sklearn.model_selection import train_test_split # data split
+from sklearn.neighbors import KNeighborsClassifier # KNN algorithm
+from sklearn.linear_model import LogisticRegression # Logistic regression algorithm
+from sklearn.svm import SVC # SVM algorithm
+from sklearn.ensemble import RandomForestClassifier # Random forest tree algorithm
+ 
+from sklearn.metrics import confusion_matrix # evaluation metric
+from sklearn.metrics import accuracy_score # evaluation metric
+from sklearn.metrics import f1_score # evaluation metric
+
+#Exploration
+d = pd.read_csv('/content/creditcard.csv')
+d.head()
+d.isnull().sum()
+d=d.drop('Time',axis=1)
+case = len(d)
+nonfraud_count = len(d[d.Class == 0])
+fraud_count = len(d[d.Class == 1])
+fraud_percentage = round(fraud_count/nonfraud_count*100, 2)
+
+print(('Total number of cases are {}'.format(case)))
+print(('Number of Non-fraud cases are {}'.format(nonfraud_count)))
+print(('Number of fraud cases are {}'.format(fraud_count)))
+print("fraud percentage:",fraud_percentage)
+nonfraud_cases = d[d.Class == 0]
+fraud_cases = d[d.Class == 1]
+
+print("For Non-Fraud Cases:",nonfraud_cases.Amount.describe())
+print("--------------------------------------------------")
+print(nonfraud_cases.info)
+print("--------------------------------------------------")
+print("For Non-Fraud Cases:",fraud_cases.Amount.describe())
+print("--------------------------------------------------")
+print(fraud_cases.info)
+d.Amount.unique
+
+#Re-Scaling data
+sc = StandardScaler()
+amount = d['Amount'].values
+d['Amount'] = sc.fit_transform(amount.reshape(-1, 1))
+print((d['Amount'].head(10)))
+
+# DATA SPLIT
+
+features= d.drop('Class', axis = 1).values
+target = d['Class'].values
+x_train, x_test, y_train, y_test = train_test_split(features, target, train_size = 0.75, random_state = 10)
+
+#  Logistic Regression
+
+lr = LogisticRegression()
+lr.fit(x_train, y_train)
+lr_yhat = lr.predict(x_test)
+
+#  SVM 
+ 
+svm = SVC()
+svm.fit(x_train, y_train)
+svm_yhat = svm.predict(x_test)
+
+#  Random Forest Tree
+
+rf = RandomForestClassifier()
+rf.fit(x_train, y_train)
+rf_yhat = rf.predict(x_test)
+
+# K-Nearest Neighbors
+
+knn = KNeighborsClassifier(n_neighbors = 5)
+knn.fit(x_train, y_train)
+knn_yhat = knn.predict(x_test)
+
+
+print(("ACCURACY SCORE"))
+print(('Accuracy score of the KNN model is {}'.format(accuracy_score(y_test, knn_yhat)))) 
+print(('Accuracy score of the Logistic Regression model is {}'.format(accuracy_score(y_test, lr_yhat)))) 
+print(('Accuracy score of the SVM model is {}'.format(accuracy_score(y_test, svm_yhat)))) 
+print(('Accuracy score of the Random Forest Tree model is {}'.format(accuracy_score(y_test, rf_yhat))))
+
+ 
+# 2. F1 score
+ 
+print(('F1 score of the KNN model is {}'.format(f1_score(y_test, knn_yhat)))) 
+print(('F1 score of the Logistic Regression model is {}'.format(f1_score(y_test, lr_yhat)))) 
+print(('F1 score of the SVM model is {}'.format(f1_score(y_test, svm_yhat)))) 
+print(('F1 score of the Random Forest Tree model is {}'.format(f1_score(y_test, rf_yhat))))
+
+# printing the confusion matrix
+LABELS = ['Normal', 'Fraud']
+conf_matrix = confusion_matrix(y_test, knn_yhat)
+plt.figure(figsize =(12, 12))
+sns.heatmap(conf_matrix, xticklabels = LABELS, 
+            yticklabels = LABELS, annot = True, fmt ="d");
+plt.title("Confusion matrix")
+plt.ylabel('True class')
+plt.xlabel('Predicted class')
+plt.show()
+
+# printing the confusion matrix
+LABELS = ['Normal', 'Fraud']
+conf_matrix = confusion_matrix(y_test, lr_yhat)
+plt.figure(figsize =(12, 12))
+sns.heatmap(conf_matrix, xticklabels = LABELS, 
+            yticklabels = LABELS, annot = True, fmt ="d");
+plt.title("Confusion matrix")
+plt.ylabel('True class')
+plt.xlabel('Predicted class')
+plt.show()
+
+# printing the confusion matrix
+LABELS = ['Normal', 'Fraud']
+conf_matrix = confusion_matrix(y_test, svm_yhat)
+plt.figure(figsize =(12, 12))
+sns.heatmap(conf_matrix, xticklabels = LABELS, 
+            yticklabels = LABELS, annot = True, fmt ="d");
+plt.title("Confusion matrix")
+plt.ylabel('True class')
+plt.xlabel('Predicted class')
+plt.show()
+
+# printing the confusion matrix
+LABELS = ['Normal', 'Fraud']
+conf_matrix = confusion_matrix(y_test, rf_yhat)
+plt.figure(figsize =(12, 12))
+sns.heatmap(conf_matrix, xticklabels = LABELS, 
+            yticklabels = LABELS, annot = True, fmt ="d");
+plt.title("Confusion matrix")
+plt.ylabel('True class')
+plt.xlabel('Predicted class')
+plt.show()
